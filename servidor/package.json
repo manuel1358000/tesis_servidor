@@ -1,0 +1,18 @@
+{
+  "name": "servidor",
+  "version": "1.0.0",
+  "description": "Servidor Nodejs para app alertasusac, Proyecto de Tesis Manuel Antonio Fuentes Fuentes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start":"nodemon index"
+  },
+  "author": "Manuel Antonio Fuentes Fuentes",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "nodemon": "^1.19.3",
+    "request": "^2.88.0"
+  }
+}
