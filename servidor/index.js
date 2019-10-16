@@ -13,8 +13,9 @@ app.post('/auth', function (req, res) {
     var carne=req.body.carne;
     var nombre=req.body.nombre;
     var cod_respuesta='';
-    if(idusuario==null||carne==null||nombre==null){
-        cod_respuesta="{'codigo':'400','mensaje':'Parametros null'}";
+    console.log(idusuario);
+    if((idusuario==null||idusuario=='')||carne==null||nombre==null){
+        cod_respuesta='{"codigo":"400","mensaje":"Parametros null"}';
         res.send(cod_respuesta);
     }else{
         verificarInformacion(idusuario)
@@ -25,10 +26,25 @@ app.post('/auth', function (req, res) {
                     idusuario:idusuario
                 };
                 var token=generarToken(payload);
-                res.send(token);
+                console.log('usuario existente');
+                res.send('{"codigo":"200","mensaje":"OK","data":{"token":"'+token+'"}}');
             }else{
-                console.log('tenemos que registrar al usuario');
-                res.send('tenemos que registrar al usuario');
+                registrarUsuarios(idusuario,carne,nombre)
+                .then(function(respuesta){
+                    if(respuesta){
+                        var payload={
+                            auth:true,
+                            idusuario:idusuario
+                        };
+                        console.log('Usuario registrado');
+                        var token=generarToken(payload);
+                        res.send('{"codigo":"200","mensaje":"OK","data":{"token":"'+token+'"}}');
+                    }else{
+                        console.log('Error en la carga de usuarios');
+                        cod_respuesta='{"codigo":"400","mensaje":"Error al registrar usuarios"}';
+                        res.send(cod_respuesta);
+                    }
+                });
                 //no se encuentra registrado en el sistema
                 //lo vamos a registrar y vamos a retornar el jwt necesario
             }
@@ -46,6 +62,19 @@ app.post('/verificartoken',function(req,res){
 function generarToken(payload){
     var token=generador_jwt.jwt.sign(payload,generador_jwt.privateKEY,generador_jwt.signOptions);
     return token;
+}
+
+async function registrarUsuarios(idusuario,carne,nombre){
+    var query="insert into usuario(idusuario,carne,nombre)values('"+idusuario+"','"+carne+"','"+nombre+"')";
+    console.log(query);
+    const res=await conexionbd.client.query(query)
+    .then(res=>{
+        return true;
+    }).catch(e=>{
+        console.log(e);
+        return false;
+    });
+    return res;
 }
 
 async function verificarInformacion(idusuario){
