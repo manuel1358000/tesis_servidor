@@ -9,58 +9,70 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 conexionbd.client.connect();
 app.post('/auth', function (req, res) {
-    var idusuario=req.body.idusuario;
-    var carne=req.body.carne;
-    var nombre=req.body.nombre;
+    var url=req.body.url;
     var rol=req.body.rol;
-    var cod_respuesta='';
-    if((idusuario==null||idusuario=='')||(rol==''||rol==null)){
-        cod_respuesta='{"codigo":"400","mensaje":"Parametros null"}';
-        res.send(cod_respuesta);
-    }else{
+    if((url!=null||rol!='')||(rol!=null)){
         if(rol=='INVITADO'){
             var payload={
                 auth:true,
-                idusuario:idusuario,
+                idusuario:'0',
                 rol:rol
             };
             var token=generarToken(payload);
-            res.send('{"codigo":"200","mensaje":"OK","data":{"token":"'+token+'"}}');
+            res.send('{"codigo":"200","mensaje":"OK","data":{"token":"'+token+'","nombre":"INVITADO","url":""}}');
         }else{
-            verificarInformacion(idusuario)
-            .then(function(verificar){
-                if(verificar){
-                    var payload={
-                        auth:true,
-                        idusuario:idusuario,
-                        rol:rol
-                    };
-                    var token=generarToken(payload);
-                    console.log('Cod: 200 Mensaje: Usuario Existente');
-                    res.send('{"codigo":"200","mensaje":"OK","data":{"token":"'+token+'"}}');
-                }else{
-                    registrarUsuarios(idusuario,carne,nombre,rol)
-                    .then(function(respuesta){
-                        if(respuesta){
-                            var payload={
-                                auth:true,
-                                idusuario:idusuario,
-                                rol:rol
-                            };
-                            console.log('Cod: 200 Mensaje: Usuario Registrado');
-                            var token=generarToken(payload);
-                            res.send('{"codigo":"200","mensaje":"OK","data":{"token":"'+token+'"}}');
-                        }else{
-                            console.log('Cod: 500 Mensaje: Error al registrar usuario');
-                            cod_respuesta='{"codigo":"400","mensaje":"Error al registrar usuarios"}';
-                            res.send(cod_respuesta);
-                        }
-                    });
-                }
-            });
+            var idusuario='123456001';
+            var carne='201213580';
+            var nombre='Manuel Fuentes';
+            var cod_respuesta='';  
+            if(idusuario!=''){
+                verificarInformacion(idusuario)
+                .then(function(verificar){
+                    if(verificar){
+                        var payload={
+                            auth:true,
+                            idusuario:idusuario,
+                            rol:rol
+                        };
+                        var token=generarToken(payload);
+                        console.log('Cod: 200 Mensaje: Usuario Existente');
+                        res.send('{"codigo":"200","mensaje":"OK","data":{"token":"'+token+'","nombre":"'+nombre+'","url":"'+url+'"}}');
+                    }else{
+                        registrarUsuarios(idusuario,carne,nombre,rol)
+                        .then(function(respuesta){
+                            if(respuesta){
+                                var payload={
+                                    auth:true,
+                                    idusuario:idusuario,
+                                    rol:rol
+                                };
+                                console.log('Cod: 200 Mensaje: Usuario Registrado');
+                                var token=generarToken(payload);
+                                res.send('{"codigo":"200","mensaje":"OK","data":{"token":"'+token+'","nombre":"'+nombre+'","url":"'+url+'"}}');
+                            }else{
+                                console.log('Cod: 500 Mensaje: Error al registrar usuario');
+                                cod_respuesta='{"codigo":"400","mensaje":"Error al registrar usuarios"}';
+                                res.send(cod_respuesta);
+                            }
+                        });
+                    }
+                });
+            }else{
+                cod_respuesta='{"codigo":"400","mensaje":"Parametros null"}';
+                res.send(cod_respuesta);
+            }
         }
+    }else{
+        cod_respuesta='{"codigo":"400","mensaje":"Parametros null"}';
+        res.send(cod_respuesta);
     }
 });
+
+app.get('/prueba',function(req,res){
+    var cod_respuesta='{"codigo":"400","mensaje":"Parametros null"}';
+    res.send(cod_respuesta);
+});
+
 
 app.post('/verificartoken',function(req,res){
     generador_jwt.verificarToken(req.body.token)
@@ -109,6 +121,6 @@ async function verificarInformacion(idusuario){
     });
     return res;
 }
-app.listen(3000,'0.0.0.0', () => {
-    console.log("Servidor APP AlertaUSAC en la direccion 0.0.0.0:3000");
+app.listen(8080,'0.0.0.0', () => {
+    console.log("Servidor APP AlertaUSAC en la direccion 0.0.0.0");
 });
