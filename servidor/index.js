@@ -26,6 +26,9 @@ app.get('/get/usuarioAU',function(req,res){
 
 app.put('/put/usuarioAU',function(req,res){
     //actualizacion de un usuario
+    
+
+
 });
 app.delete('/delete/usuarioAU',function(req,res){
     eliminarUsuario(req.body.CUI).then((respuesta)=>{
@@ -35,7 +38,10 @@ app.delete('/delete/usuarioAU',function(req,res){
 
 app.post('/post/publicacionAU',function(req,res){
     
+
 });
+
+
 app.get('/get/publicacionAU',function(req,res){
     //si tiene algun parametro va a buscar un usuario en especifico
     //si no lo tiene regresa a todos los usuarios
@@ -67,7 +73,7 @@ async function registrarUsuarios(cui,nombre,password,tipo,estado){
     .then(res=>{
         return {"codigo":200 ,"mensaje":"Usuario Creado con Exito"};
     }).catch(e=>{
-        if (e.code==23505) return {"codigo":200,"mensaje":"Ya existe un usuario registrado el numero de CUI ingresado"};
+        if (e.code==23505) return {"codigo":201,"mensaje":"Ya existe un usuario registrado el numero de CUI ingresado"};
             return {"codigo":501,"mensaje":"Error al momento de registrar al usuario, intente nuevamente"};
         });    
     return respuesta;
@@ -75,12 +81,19 @@ async function registrarUsuarios(cui,nombre,password,tipo,estado){
 
 async function inicioSesion(cui,password){
     if(cui==''&&password=='')return {"codigo":402,"mensaje":"Datos incompletos al iniciar sesion, intente nuevamente"};
-    var query="select cod_usuario,nombre,tipo,estado from usuario where cui="+cui+" and password='"+password+"'";
-    console.log(query);
+    var query="select nombre,tipo from usuario where cui="+cui+" and password='"+password+"'";
     const respuesta=await conexionbd.client.query(query)
     .then(res=>{
-        if(res.rowCount==1) return {"codigo":200,"mensaje":"Inicio de Sesion Exitoso","data":res.rows[0]};
-        return {"codigo":200,"mensaje":"Por Favor ingrese un CUI/PASSWORD valido"};
+        if(res.rowCount!=1) return {"codigo":201,"mensaje":"Por Favor ingrese un CUI/PASSWORD valido"};
+        console.log(res.rows[0]);
+        var payload={
+            auth:"true",
+            tipo:res.rows[0].tipo,
+            
+        };
+        return generarToken(payload).then(token=>{
+            return {"codigo":200,"mensaje":"Inicio de Sesion Exitoso","tipo":res.rows[0].tipo,"nombre":res.rows[0].nombre,"token":token};
+        });
     }).catch(e=>{
         console.log(e);
         return {"codigo":501,"mensaje":"Error al momento de iniciar sesion, intente nuevamente"};
@@ -95,8 +108,8 @@ app.post('/verificartoken',function(req,res){
     });
 });
 
-function generarToken(payload){
-    var token=generador_jwt.jwt.sign(payload,generador_jwt.privateKEY,generador_jwt.signOptions);
+async function generarToken(payload){
+    var token=await generador_jwt.jwt.sign(payload,generador_jwt.privateKEY,generador_jwt.signOptions);
     return token;
 }
 

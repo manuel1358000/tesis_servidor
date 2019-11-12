@@ -3,7 +3,8 @@ var fs=require('fs');
 var privateKEY=fs.readFileSync('./src/private.key','utf8');
 var signOptions={
     algorithm:"HS256",
-    noTimestamp:true
+    noTimestamp:true,
+    expiresIn:'24h',
 };
 function generarToken(payload){
     var token=jwt.sign(payload,privateKEY,signOptions);
