@@ -37,8 +37,14 @@ app.delete('/delete/usuarioAU',function(req,res){
 });
 
 app.post('/post/publicacionAU',function(req,res){
-    
-
+    generador_jwt.verificarToken(req.body.TOKEN).then(()=>{
+        registrarPublicacion(req.body.TIPO,req.body.NOMBRE,req.body.descripcion,req.body.POSICIONX,req.body.POSICIONY,req.body.ESTADO,req.body.CUI).then((respuesta)=>{
+            res.json(respuesta);
+        });
+    }).catch((e)=>{
+        console.log(resptoken);
+        res.json({"codigo":505,"mensaje":"Token Expirado"});
+    });   
 });
 
 
@@ -79,6 +85,23 @@ async function registrarUsuarios(cui,nombre,password,tipo,estado){
     return respuesta;
 }
 
+
+async function registrarPublicacion(tipo, nombre, descripcion, posicionX, posicionY, estado,cui){
+    if(tipo==''||nombre==''||descripcion==''||posicionX==''||posicionY==''||estado==''||cui=='')return {"codigo":402,"mensaje":"Datos incompletos para realizar la publicacion, intente nuevamente"};
+    var query="select CREAR_PUBLICACION("+tipo+",'"+nombre+"','"+descripcion+"',"+posicionX+","+posicionY+","+estado+","+cui+");";
+    console.log(query);
+    const respuesta=await conexionbd.client.query(query)
+    .then(async res=>{
+        return {"codigo":200 ,"mensaje":"Publicacion Creada con Exito"};
+    }).catch(e=>{
+        console.log(e.toString());
+        return {"codigo":501,"mensaje":"Error al momento de registrar la publicacion, intente nuevamente"};        
+    }); 
+    return respuesta;
+}
+
+
+
 async function inicioSesion(cui,password){
     if(cui==''&&password=='')return {"codigo":402,"mensaje":"Datos incompletos al iniciar sesion, intente nuevamente"};
     var query="select nombre,tipo from usuario where cui="+cui+" and password='"+password+"'";
@@ -104,6 +127,7 @@ async function inicioSesion(cui,password){
 app.post('/verificartoken',function(req,res){
     generador_jwt.verificarToken(req.body.token)
     .then(function(respuesta){
+        console.log(respuesta);
         res.send(respuesta);
     });
 });
