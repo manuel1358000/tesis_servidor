@@ -38,7 +38,7 @@ app.delete('/delete/usuarioAU',function(req,res){
 
 app.post('/post/publicacionAU',function(req,res){
     generador_jwt.verificarToken(req.body.TOKEN).then(()=>{
-        registrarPublicacion(req.body.TIPO,req.body.NOMBRE,req.body.descripcion,req.body.POSICIONX,req.body.POSICIONY,req.body.ESTADO,req.body.CUI).then((respuesta)=>{
+        registrarPublicacion(req.body.TIPO,req.body.NOMBRE,req.body.descripcion,req.body.POSICIONX,req.body.POSICIONY,req.body.ESTADO,req.body.CUI,req.body.SUBTIPO).then((respuesta)=>{
             res.json(respuesta);
         });
     }).catch((e)=>{
@@ -86,9 +86,9 @@ async function registrarUsuarios(cui,nombre,password,tipo,estado){
 }
 
 
-async function registrarPublicacion(tipo, nombre, descripcion, posicionX, posicionY, estado,cui){
-    if(tipo==''||nombre==''||descripcion==''||posicionX==''||posicionY==''||estado==''||cui=='')return {"codigo":402,"mensaje":"Datos incompletos para realizar la publicacion, intente nuevamente"};
-    var query="select CREAR_PUBLICACION("+tipo+",'"+nombre+"','"+descripcion+"',"+posicionX+","+posicionY+","+estado+","+cui+");";
+async function registrarPublicacion(tipo, nombre, descripcion, posicionX, posicionY, estado,cui,subtipo){
+    if(tipo==''||nombre==''||descripcion==''||posicionX==''||posicionY==''||estado==''||cui==''||subtipo=='')return {"codigo":402,"mensaje":"Datos incompletos para realizar la publicacion, intente nuevamente"};
+    var query="select CREAR_PUBLICACION("+tipo+",'"+nombre+"','"+descripcion+"',"+posicionX+","+posicionY+","+estado+","+cui+","+subtipo+");";
     console.log(query);
     const respuesta=await conexionbd.client.query(query)
     .then(async res=>{
