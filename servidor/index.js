@@ -38,7 +38,7 @@ app.delete('/delete/usuarioAU',function(req,res){
 
 app.post('/post/publicacionAU',function(req,res){
     generador_jwt.verificarToken(req.body.TOKEN).then(()=>{
-        registrarPublicacion(req.body.TIPO,req.body.NOMBRE,req.body.descripcion,req.body.POSICIONX,req.body.POSICIONY,req.body.ESTADO,req.body.CUI,req.body.SUBTIPO).then((respuesta)=>{
+        registrarPublicacion(req.body.TIPO,req.body.NOMBRE,req.body.DESCRIPCION,req.body.POSICIONX,req.body.POSICIONY,req.body.ESTADO,req.body.CUI,req.body.SUBTIPO).then((respuesta)=>{
             res.json(respuesta);
         });
     }).catch((e)=>{
