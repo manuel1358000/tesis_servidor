@@ -22,13 +22,13 @@ app.post('/post/usuarioAU',function(req,res){
 app.get('/get/usuarioAU',function(req,res){
     //si tiene algun parametro va a buscar un usuario en especifico
     //si no lo tiene regresa a todos los usuarios
+    buscarUsuario(req.query.CUI).then((respuesta)=>{
+        res.json(respuesta);
+    });
 }); 
 
 app.put('/put/usuarioAU',function(req,res){
     //actualizacion de un usuario
-    
-
-
 });
 app.delete('/delete/usuarioAU',function(req,res){
     eliminarUsuario(req.body.CUI).then((respuesta)=>{
@@ -38,7 +38,7 @@ app.delete('/delete/usuarioAU',function(req,res){
 
 app.post('/post/publicacionAU',function(req,res){
     generador_jwt.verificarToken(req.body.TOKEN).then(()=>{
-        registrarPublicacion(req.body.TIPO,req.body.NOMBRE,req.body.DESCRIPCION,req.body.POSICIONX,req.body.POSICIONY,req.body.ESTADO,req.body.CUI,req.body.SUBTIPO).then((respuesta)=>{
+        registrarPublicacion(req.body.TIPO,req.body.NOMBRE,req.body.DESCRIPCION,req.body.POSICIONX,req.body.POSICIONY,req.body.ESTADO,req.body.CUI,req.body.SUBTIPO,req.body.FECHAHORA).then((respuesta)=>{
             res.json(respuesta);
         });
     }).catch((e)=>{
@@ -59,6 +59,20 @@ app.put('/put/publicacionAU',function(req,res){
 app.delete('/delete/publicacionAU',function(req,res){
     
 });
+
+
+async function buscarUsuario(cui){
+    var query="select cui,password,nombre from usuario where cui="+cui;
+    console.log(query);
+    const respuesta=await conexionbd.client.query(query)
+    .then(res=>{
+        if(res.rowCount!=1) return {"codigo":201,"mensaje":"Por Favor ingrese un CUI valido"};
+        return res.rows[0];
+    }).catch(e=>{
+        return {"codigo":501,"mensaje":"Error al momento de buscar el usuario, intente nuevamente"};
+    });    
+    return respuesta;
+}
 
 
 async function eliminarUsuario(cui){
@@ -86,9 +100,9 @@ async function registrarUsuarios(cui,nombre,password,tipo,estado){
 }
 
 
-async function registrarPublicacion(tipo, nombre, descripcion, posicionX, posicionY, estado,cui,subtipo){
+async function registrarPublicacion(tipo, nombre, descripcion, posicionX, posicionY, estado,cui,subtipo,fechahora){
     if(tipo==''||nombre==''||descripcion==''||posicionX==''||posicionY==''||estado==''||cui==''||subtipo=='')return {"codigo":402,"mensaje":"Datos incompletos para realizar la publicacion, intente nuevamente"};
-    var query="select CREAR_PUBLICACION("+tipo+",'"+nombre+"','"+descripcion+"',"+posicionX+","+posicionY+","+estado+","+cui+","+subtipo+");";
+    var query="select CREAR_PUBLICACION("+tipo+",'"+nombre+"','"+descripcion+"',"+posicionX+","+posicionY+","+estado+","+cui+","+subtipo+",'"+fechahora+"');";
     console.log(query);
     const respuesta=await conexionbd.client.query(query)
     .then(async res=>{

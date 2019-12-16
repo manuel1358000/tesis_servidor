@@ -1,7 +1,5 @@
 select * from publicacion;
 select * from usuario;
-
-
 CREATE OR REPLACE FUNCTION CREAR_PUBLICACION(
 	p_tipo integer,
 	p_nombre varchar,
@@ -10,9 +8,10 @@ CREATE OR REPLACE FUNCTION CREAR_PUBLICACION(
 	p_posicion_y float,
 	p_estado integer,
 	p_cui bigint,
-	p_subtipo integer) returns void as $$
+	p_subtipo integer,
+	p_fechahora varchar) returns void as $$
 BEGIN
-	insert into publicacion(tipo,nombre,descripcion,posicion_x,posicion_y,estado,subtipo)values(p_tipo,p_nombre,p_descripcion,p_posicion_x,p_posicion_y,p_estado,p_subtipo);
+	insert into publicacion(tipo,nombre,descripcion,posicion_x,posicion_y,estado,subtipo,fechahora)values(p_tipo,p_nombre,p_descripcion,p_posicion_x,p_posicion_y,p_estado,p_subtipo,TO_TIMESTAMP(p_fechahora,'MM/DD/YYYY HH24:MI:SS'));
 	insert into asignacion(cod_usuario,cod_publicacion)values((select cod_usuario from usuario where cui=p_cui),(SELECT currval(pg_get_serial_sequence('publicacion','cod_publicacion'))));
 END;
 $$ LANGUAGE plpgsql;
