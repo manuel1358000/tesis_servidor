@@ -29,6 +29,9 @@ app.get('/get/usuarioAU',function(req,res){
 
 app.put('/put/usuarioAU',function(req,res){
     //actualizacion de un usuario
+    actualizarUsuarios(req.body.CUI,req.body.NOMBRE,req.body.PASSWORD).then((respuesta)=>{
+        res.json(respuesta);
+    });
 });
 app.delete('/delete/usuarioAU',function(req,res){
     eliminarUsuario(req.body.CUI).then((respuesta)=>{
@@ -63,11 +66,12 @@ app.delete('/delete/publicacionAU',function(req,res){
 
 async function buscarUsuario(cui){
     var query="select cui,password,nombre from usuario where cui="+cui;
-    console.log(query);
     const respuesta=await conexionbd.client.query(query)
     .then(res=>{
         if(res.rowCount!=1) return {"codigo":201,"mensaje":"Por Favor ingrese un CUI valido"};
+        console.log(res.rows[0]);
         return res.rows[0];
+
     }).catch(e=>{
         return {"codigo":501,"mensaje":"Error al momento de buscar el usuario, intente nuevamente"};
     });    
@@ -99,6 +103,20 @@ async function registrarUsuarios(cui,nombre,password,tipo,estado){
     return respuesta;
 }
 
+async function actualizarUsuarios(cui,nombre,password){
+    console.log('CUI: '+cui);
+    console.log('NOMBRE: '+nombre);
+    console.log('PASSWORD: '+password);
+    var query="update usuario set nombre='"+nombre+"',password='"+password+"' where cui="+cui;
+    const respuesta=await conexionbd.client.query(query)
+    .then(res=>{
+        return {"codigo":200 ,"mensaje":"Los datos se actualizaron de manera correcta"};
+    }).catch(e=>{
+        return {"codigo":501,"mensaje":"Error al momento de actualizar el usuario, intente nuevamente"};            
+     });
+            
+    return respuesta;
+}
 
 async function registrarPublicacion(tipo, nombre, descripcion, posicionX, posicionY, estado,cui,subtipo,fechahora){
     if(tipo==''||nombre==''||descripcion==''||posicionX==''||posicionY==''||estado==''||cui==''||subtipo=='')return {"codigo":402,"mensaje":"Datos incompletos para realizar la publicacion, intente nuevamente"};
