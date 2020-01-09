@@ -54,7 +54,7 @@ app.post('/post/publicacionAU',function(req,res){
 app.get('/get/publicacionGAU',function(req,res){
     //si tiene algun parametro va a buscar un usuario en especifico
     //si no lo tiene regresa a todos los usuarios
-    listado_publicaciones_generales().then((respuesta)=>{
+    listado_publicaciones_generales(req.query.PAGINACION*10).then((respuesta)=>{
         res.json({"codigo":"200","mensaje":"Publicaciones Generales","data":respuesta});
     });
 }); 
@@ -63,7 +63,7 @@ app.get('/get/publicacionUAU',function(req,res){
     //si tiene algun parametro va a buscar un usuario en especifico
     //si no lo tiene regresa a todos los usuarios
     if(req.query.CUI==null) res.json({"codigo":501,"mensaje":"No existe el usuario que intenta acceder"});
-    listado_publicaciones_usuario(req.query.CUI).then((respuesta)=>{
+    listado_publicaciones_usuario(req.query.CUI,req.query.PAGINACION*10).then((respuesta)=>{
         res.json({"codigo":"200","mensaje":"Publicaciones Usuario","CUI":req.query.CUI,"data":respuesta});
     });
 }); 
@@ -74,31 +74,34 @@ app.delete('/delete/publicacionAU',function(req,res){
     
 });
 
-async function listado_publicaciones_generales(){
-    var query="SELECT usu.cui,usu.nombre,publi.cod_publicacion, publi.tipo,publi.nombre,publi.descripcion,publi.posicion_x,publi.posicion_y,publi.fechahora "+
-    "FROM usuario usu "+
-    "INNER JOIN asignacion asi "+ 
-    "ON usu.cod_usuario = asi.cod_usuario "+
-    "INNER JOIN publicacion publi "+
-    "ON asi.cod_publicacion = publi.cod_publicacion";
-    const respuesta=await conexionbd.client.query(query)
-    .then(res=>{
-        if(res.rowCount==0) return [];
-        return res.rows;
-    }).catch(e=>{
-        return {"codigo":501,"mensaje":"Error al momento de buscar las publicaciones generales, intente nuevamente"};
-    });    
-    return respuesta;
-}
-
-async function listado_publicaciones_usuario(cui){
+async function listado_publicaciones_generales(paginacion){
     var query="SELECT usu.cui,usu.nombre,publi.cod_publicacion, publi.tipo,publi.nombre,publi.descripcion,publi.posicion_x,publi.posicion_y,publi.fechahora "+
     "FROM usuario usu "+
     "INNER JOIN asignacion asi "+ 
     "ON usu.cod_usuario = asi.cod_usuario "+
     "INNER JOIN publicacion publi "+
     "ON asi.cod_publicacion = publi.cod_publicacion "+
-    "WHERE usu.cui="+cui;
+    "LIMIT 10 OFFSET "+paginacion;
+    const respuesta=await conexionbd.client.query(query)
+    .then(res=>{
+        if(res.rowCount==0) return [];
+        return res.rows;
+    }).catch(e=>{
+        console.log(e);
+        return {"codigo":501,"mensaje":"Error al momento de buscar las publicaciones generales, intente nuevamente"};
+    });    
+    return respuesta;
+}
+
+async function listado_publicaciones_usuario(cui,paginacion){
+    var query="SELECT usu.cui,usu.nombre,publi.cod_publicacion, publi.tipo,publi.nombre,publi.descripcion,publi.posicion_x,publi.posicion_y,publi.fechahora "+
+    "FROM usuario usu "+
+    "INNER JOIN asignacion asi "+ 
+    "ON usu.cod_usuario = asi.cod_usuario "+
+    "INNER JOIN publicacion publi "+
+    "ON asi.cod_publicacion = publi.cod_publicacion "+
+    "WHERE usu.cui="+cui+" "+
+    "LIMIT 10 OFFSET "+paginacion;
     const respuesta=await conexionbd.client.query(query)
     .then(res=>{
         if(res.rowCount==0) return [];
