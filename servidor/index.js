@@ -51,9 +51,12 @@ app.post('/post/publicacionAU',function(req,res){
 });
 
 
-app.get('/get/publicacionAU',function(req,res){
+app.get('/get/publicacionGAU',function(req,res){
     //si tiene algun parametro va a buscar un usuario en especifico
     //si no lo tiene regresa a todos los usuarios
+    listado_publicaciones_generales().then((respuesta)=>{
+        res.json({"codigo":"200","mensaje":"Publicaciones Generales","data":respuesta});
+    });
 }); 
 
 app.put('/put/publicacionAU',function(req,res){
@@ -63,6 +66,27 @@ app.delete('/delete/publicacionAU',function(req,res){
     
 });
 
+async function listado_publicaciones_generales(){
+    var query="SELECT usu.cui,usu.nombre,publi.cod_publicacion, publi.tipo,publi.nombre,publi.descripcion,publi.posicion_x,publi.posicion_y,publi.fechahora "+
+    "FROM usuario usu "+
+    "INNER JOIN asignacion asi "+ 
+    "ON usu.cod_usuario = asi.cod_usuario "+
+    "INNER JOIN publicacion publi "+
+    "ON asi.cod_publicacion = publi.cod_publicacion";
+    const respuesta=await conexionbd.client.query(query)
+    .then(res=>{
+        console.log(res.rows);
+        return res.rows;
+    }).catch(e=>{
+        console.log(e);
+        return {"codigo":501,"mensaje":"Error al momento de buscar el usuario, intente nuevamente"};
+    });    
+    return respuesta;
+}
+
+async function listado_publicaciones_usuario(cui){
+    return {"mensaje":"Si tiene parametro2"};
+}
 
 async function buscarUsuario(cui){
     var query="select cui,password,nombre from usuario where cui="+cui;
