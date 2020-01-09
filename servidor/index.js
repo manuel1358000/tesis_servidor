@@ -59,6 +59,14 @@ app.get('/get/publicacionGAU',function(req,res){
     });
 }); 
 
+app.get('/get/publicacionUAU',function(req,res){
+    //si tiene algun parametro va a buscar un usuario en especifico
+    //si no lo tiene regresa a todos los usuarios
+    if(req.query.CUI==null) res.json({"codigo":501,"mensaje":"No existe el usuario que intenta acceder"});
+    listado_publicaciones_usuario(req.query.CUI).then((respuesta)=>{
+        res.json({"codigo":"200","mensaje":"Publicaciones Usuario","CUI":req.query.CUI,"data":respuesta});
+    });
+}); 
 app.put('/put/publicacionAU',function(req,res){
     //actualizacion de un usuario
 });
@@ -75,17 +83,31 @@ async function listado_publicaciones_generales(){
     "ON asi.cod_publicacion = publi.cod_publicacion";
     const respuesta=await conexionbd.client.query(query)
     .then(res=>{
-        console.log(res.rows);
+        if(res.rowCount==0) return [];
         return res.rows;
     }).catch(e=>{
-        console.log(e);
-        return {"codigo":501,"mensaje":"Error al momento de buscar el usuario, intente nuevamente"};
+        return {"codigo":501,"mensaje":"Error al momento de buscar las publicaciones generales, intente nuevamente"};
     });    
     return respuesta;
 }
 
 async function listado_publicaciones_usuario(cui){
-    return {"mensaje":"Si tiene parametro2"};
+    var query="SELECT usu.cui,usu.nombre,publi.cod_publicacion, publi.tipo,publi.nombre,publi.descripcion,publi.posicion_x,publi.posicion_y,publi.fechahora "+
+    "FROM usuario usu "+
+    "INNER JOIN asignacion asi "+ 
+    "ON usu.cod_usuario = asi.cod_usuario "+
+    "INNER JOIN publicacion publi "+
+    "ON asi.cod_publicacion = publi.cod_publicacion "+
+    "WHERE usu.cui="+cui;
+    const respuesta=await conexionbd.client.query(query)
+    .then(res=>{
+        if(res.rowCount==0) return [];
+        return res.rows;
+    }).catch(e=>{
+        console.log(e);
+        return {"codigo":501,"mensaje":"Error al momento de buscar las publicaciones del usuario, intente nuevamente"};
+    });    
+    return respuesta;
 }
 
 async function buscarUsuario(cui){
