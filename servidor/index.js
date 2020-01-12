@@ -71,9 +71,21 @@ app.put('/put/publicacionAU',function(req,res){
     //actualizacion de un usuario
 });
 app.delete('/delete/publicacionAU',function(req,res){
-    
+    eliminar_publicacion(req.body.COD_PUBLICACION).then((respuesta)=>{
+        res.json(respuesta);
+    });
 });
 
+async function eliminar_publicacion(cod_publicacion){
+    var query="delete from asignacion where cod_publicacion="+cod_publicacion+"; delete from publicacion where cod_publicacion="+cod_publicacion+";";
+    const respuesta=await conexionbd.client.query(query)
+    .then(res=>{
+        return {"codigo":200,"mensaje":"Se elimino la publicacion de manera correcta"}
+    }).catch(e=>{
+        return {"codigo":501,"mensaje":"Error al momento de buscar las publicaciones generales, intente nuevamente"};
+    });    
+    return respuesta;
+}
 async function listado_publicaciones_generales(paginacion){
     var query="SELECT usu.cui,usu.nombre,publi.cod_publicacion, publi.tipo,publi.nombre,publi.descripcion,publi.posicion_x,publi.posicion_y,publi.fechahora "+
     "FROM usuario usu "+
@@ -153,9 +165,6 @@ async function registrarUsuarios(cui,nombre,password,tipo,estado){
 }
 
 async function actualizarUsuarios(cui,nombre,password){
-    console.log('CUI: '+cui);
-    console.log('NOMBRE: '+nombre);
-    console.log('PASSWORD: '+password);
     var query="update usuario set nombre='"+nombre+"',password='"+password+"' where cui="+cui;
     const respuesta=await conexionbd.client.query(query)
     .then(res=>{
