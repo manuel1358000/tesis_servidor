@@ -71,7 +71,7 @@ app.put('/put/publicacionAU',function(req,res){
     //actualizacion de un usuario
 });
 app.delete('/delete/publicacionAU',function(req,res){
-    eliminar_publicacion(req.body.COD_PUBLICACION).then((respuesta)=>{
+    eliminar_publicacion(req.query.COD_PUBLICACION).then((respuesta)=>{
         res.json(respuesta);
     });
 });
@@ -82,7 +82,8 @@ async function eliminar_publicacion(cod_publicacion){
     .then(res=>{
         return {"codigo":200,"mensaje":"Se elimino la publicacion de manera correcta"}
     }).catch(e=>{
-        return {"codigo":501,"mensaje":"Error al momento de buscar las publicaciones generales, intente nuevamente"};
+        console.log(e);
+        return {"codigo":501,"mensaje":"Error al momento de eliminar la publicacion, intente nuevamente"};
     });    
     return respuesta;
 }
