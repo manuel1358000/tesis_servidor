@@ -1,0 +1,40 @@
+version: "2"
+services:
+  basedatos:
+    image: postgres # The <container-name>:<tag-version> of the container, in this case the tag version aligns with the version of node
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tesis
+      POSTGRES_INITDB_SKIP_TZINFO: "yes"
+      POSTGRES_HOST: '127.0.0.1'
+    ports:
+      - "5434:5432" # <host-port>:<container-port> to listen to, so anything running on port 3000 of the container will map to port 3000 on our localhost
+    volumes:
+      - ./basedatos:/var/lib/postgresql/data # <host-directory>:<container-directory> this says map the current directory from your system to the /app directory in the docker container
+    networks:
+      - app
+      #command: "npm start" # The command docker will execute when starting the container, this command is not allowed to exit, if it does your container will stop
+  web:
+    container_name: traducciones # How the container will appear when listing containers from the CLI
+    image: node:10.13-alpine # The <container-name>:<tag-version> of the container, in this case the tag version aligns with the version of node
+    user: node # The user to run as in the container
+    environment:
+      NODE_ESB_PORT: 3000
+      NODE_ESB_IP: 0.0.0.0
+    working_dir: "/app" # Where to container will assume it should run commands and where you will start out if you go inside the container
+    networks:
+    - app # Networking can get complex, but for all intents and purposes just know that containers on the same network can speak to each other
+    ports:
+    - "3000:3000" # <host-port>:<container-port> to listen to, so anything running on port 3000 of the container will map to port 3000 on our localhost
+    volumes:
+    - ./servidor:/app # <host-directory>:<container-directory> this says map the current directory from your system to the /app directory in the docker container
+    command: "npm start" # The command docker will execute when starting the container, this command is not allowed to exit, if it does your container will stop
+    links:
+      - basedatos
+    depends_on:
+      - basedatos
+    networks:
+      - app
+networks: 
+  app:
