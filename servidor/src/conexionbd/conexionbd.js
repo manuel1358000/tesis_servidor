@@ -1,6 +1,6 @@
 var {Client}=require('pg');
 var config={
-    host     : '192.168.0.17',
+    host     : '34.67.241.151',
 	user     : 'postgres',
 	password : 'postgres',
     database : 'tesis',

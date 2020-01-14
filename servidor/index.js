@@ -69,7 +69,10 @@ app.get('/get/publicacionUAU',function(req,res){
     //si no lo tiene regresa a todos los usuarios
     if(req.query.CUI==null) res.json({"codigo":501,"mensaje":"No existe el usuario que intenta acceder"});
     listado_publicaciones_usuario(req.query.CUI,req.query.PAGINACION*10).then((respuesta)=>{
-        res.json({"codigo":"200","mensaje":"Publicaciones Usuario","CUI":req.query.CUI,"data":respuesta});
+        if(respuesta==0){
+		res.json({"codigo":"501","mensaje":"Ya no hay publicaciones"});
+	}
+	res.json({"codigo":"200","mensaje":"Publicaciones Usuario","CUI":req.query.CUI,"data":respuesta});
     });
 }); 
 app.put('/put/publicacionAU',function(req,res){
@@ -122,7 +125,7 @@ async function listado_publicaciones_usuario(cui,paginacion){
     "LIMIT 10 OFFSET "+paginacion;
     const respuesta=await conexionbd.client.query(query)
     .then(res=>{
-        if(res.rowCount==0) return [];
+        if(res.rowCount==0) return 0;
         return res.rows;
     }).catch(e=>{
         console.log(e);
