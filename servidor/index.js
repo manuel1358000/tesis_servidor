@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require('body-parser');
 var request=require('request');
+const fileUpload = require('express-fileupload');
 var generador_jwt=require('./src/jwt/jwt.js');
 var conexionbd=require('./src/conexionbd/conexionbd.js');
 const app = express();
@@ -8,6 +9,36 @@ app.use(express.static('src'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 conexionbd.client.connect();
+app.use(express.static('uploads'));
+app.use(fileUpload({
+    createParentPath: true
+}));
+
+app.post('/upload-avatar', async (req, res) => {
+    try {
+        if(!req.files) {
+            res.send({
+                status: false,
+                message: 'No file uploaded'
+            });
+        } else {
+            //Use the name of the input field (i.e. "avatar") to retrieve the uploaded file
+            let avatar = req.files.avatar;         
+            //Use the mv() method to place the file in upload directory (i.e. "uploads")
+            avatar.mv('./uploads/' + avatar.name);
+            //send response
+            res.send({
+                codigo: 200,
+                message: 'Archivo ha sido subido',
+                data: {
+                    name: avatar.name,
+                }
+            });
+        }
+    } catch (err) {
+        res.status(500).send(err);
+    }
+});
 app.post('/post/iniciar_sesion',function(req,res){
     console.log(req.body);
     inicioSesion(req.body.CUI,req.body.PASSWORD).then((respuesta)=>{
@@ -15,9 +46,19 @@ app.post('/post/iniciar_sesion',function(req,res){
     });
 });
 app.post('/post/usuarioAU',function(req,res){
-    registrarUsuarios(req.body.CUI,req.body.NOMBRE,req.body.PASSWORD,req.body.TIPO,req.body.ESTADO).then((respuesta)=>{
-            res.json(respuesta);
-    });
+    try{
+        /*if(!req.files){
+            res.json({
+                "codigo": 501,
+                "mensaje": "Necesita agregar una fotografia"
+            });
+        }*/
+        registrarUsuarios(req.body.CUI,req.body.NOMBRE,req.body.PASSWORD,req.body.TIPO,req.body.ESTADO).then((respuesta)=>{
+                res.json(respuesta);
+        });
+    }catch(err){
+        res.json({"codigo":500,"mensaje":"Ocurrio un error, al crear el usuario "});
+    }
 });
 app.get('/get/usuarioAU',function(req,res){
     //si tiene algun parametro va a buscar un usuario en especifico
@@ -26,6 +67,7 @@ app.get('/get/usuarioAU',function(req,res){
         res.json(respuesta);
     });
 }); 
+
 
 app.get('/verificar',function(req,res){
     console.log(req.body);
@@ -162,6 +204,7 @@ async function eliminarUsuario(cui){
     return respuesta;
 }
 async function registrarUsuarios(cui,nombre,password,tipo,estado){
+    //avatar.mv('./uploads/' + avatar.name);
     var query="insert into usuario(cui,nombre,password,tipo,estado)values("+cui+",'"+nombre+"','"+password+"',"+tipo+","+estado+")";
     const respuesta=await conexionbd.client.query(query)
     .then(res=>{
@@ -236,6 +279,9 @@ async function generarToken(payload){
     return token;
 }
 
-app.listen(process.env.NODE_ESB_PORT,'0.0.0.0', () => {
+/*app.listen(process.env.NODE_ESB_PORT,'0.0.0.0', () => {
+    console.log("Servidor APP AlertaUSAC en la direccion 0.0.0.0");
+});*/
+app.listen(3000,'0.0.0.0', () => {
     console.log("Servidor APP AlertaUSAC en la direccion 0.0.0.0");
 });
