@@ -53,13 +53,13 @@ app.post('/post/recuperar_contra',function(req,res){
 
 app.post('/post/usuarioAU',function(req,res){
     try{
-        /*if(!req.files){
+        if(!req.files){
             res.json({
                 "codigo": 501,
                 "mensaje": "Necesita agregar una fotografia"
             });
-        }*/
-        registrarUsuarios(req.body.CUI,req.body.NOMBRE,req.body.PASSWORD,req.body.TIPO,req.body.ESTADO).then((respuesta)=>{
+        }
+        registrarUsuarios(req.body.CUI,req.body.NOMBRE,req.body.PASSWORD,req.body.TIPO,req.body.ESTADO,req.files.AVATAR).then((respuesta)=>{
                 res.json(respuesta);
         });
     }catch(err){
@@ -67,8 +67,6 @@ app.post('/post/usuarioAU',function(req,res){
     }
 });
 app.get('/get/usuarioAU',function(req,res){
-    //si tiene algun parametro va a buscar un usuario en especifico
-    //si no lo tiene regresa a todos los usuarios
     buscarUsuario(req.query.CUI).then((respuesta)=>{
         res.json(respuesta);
     });
@@ -196,13 +194,11 @@ async function listado_publicaciones_usuario(cui,paginacion){
 }
 
 async function buscarUsuario(cui){
-    var query="select cui,password,nombre from usuario where cui="+cui;
+    var query="select cui,password,nombre,imagen from usuario where cui="+cui;
     const respuesta=await conexionbd.client.query(query)
     .then(res=>{
         if(res.rowCount!=1) return {"codigo":201,"mensaje":"Por Favor ingrese un CUI valido"};
-        console.log(res.rows[0]);
         return res.rows[0];
-
     }).catch(e=>{
         return {"codigo":501,"mensaje":"Error al momento de buscar el usuario, intente nuevamente"};
     });    
@@ -222,11 +218,11 @@ async function eliminarUsuario(cui){
     });    
     return respuesta;
 }
-async function registrarUsuarios(cui,nombre,password,tipo,estado){
-    //avatar.mv('./uploads/' + avatar.name);
-    var query="insert into usuario(cui,nombre,password,tipo,estado)values("+cui+",'"+nombre+"','"+password+"',"+tipo+","+estado+")";
+async function registrarUsuarios(cui,nombre,password,tipo,estado,avatar){
+    var query="insert into usuario(cui,nombre,password,tipo,estado,imagen)values("+cui+",'"+nombre+"','"+password+"',"+tipo+","+estado+",'"+cui.toString()+'_'+avatar.name.replace(/ /g, "_")+"')";
     const respuesta=await conexionbd.client.query(query)
     .then(res=>{
+        avatar.mv('./uploads/' +cui.toString()+'_'+avatar.name.replace(/ /g, "_"));
         return {"codigo":200 ,"mensaje":"Usuario Creado con Exito"};
     }).catch(e=>{
         if (e.code==23505) return {"codigo":201,"mensaje":"Ya existe un usuario registrado el numero de CUI ingresado"};
@@ -236,7 +232,7 @@ async function registrarUsuarios(cui,nombre,password,tipo,estado){
 }
 
 async function actualizarUsuarios(cui,nombre,password){
-    var query="update usuario set nombre='"+nombre+"',password='"+password+"' where cui="+cui;
+    var query="update usuario set nombre='"+nombre+"',password='"+password+"'  where cui="+cui;
     const respuesta=await conexionbd.client.query(query)
     .then(res=>{
         return {"codigo":200 ,"mensaje":"Los datos se actualizaron de manera correcta"};
