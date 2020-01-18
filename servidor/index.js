@@ -45,6 +45,12 @@ app.post('/post/iniciar_sesion',function(req,res){
         res.json(respuesta);
     });
 });
+app.post('/post/recuperar_contra',function(req,res){
+    recuperarContra(req.body.CUI).then((respuesta)=>{
+        res.json(respuesta);
+    });
+});
+
 app.post('/post/usuarioAU',function(req,res){
     try{
         /*if(!req.files){
@@ -125,6 +131,19 @@ app.delete('/delete/publicacionAU',function(req,res){
         res.json(respuesta);
     });
 });
+
+async function recuperarContra(cui){
+    var query="select password from usuario where cui="+cui;
+    const respuesta=await conexionbd.client.query(query)
+    .then(res=>{
+        if(res.rowCount!=1) return {"codigo":201,"mensaje":"El CUI ingresado no esta registrado, intente nuevamente"};
+        return {"codigo":200,"mensaje":"Recuperacion de contraseña exitosa, la contraseña para el cui "+cui+' es: '+res.rows[0].password};
+
+    }).catch(e=>{
+        return {"codigo":501,"mensaje":"Error al momento de buscar el usuario, intente nuevamente"};
+    });    
+    return respuesta;
+}
 
 async function eliminar_publicacion(cod_publicacion){
     var query="delete from asignacion where cod_publicacion="+cod_publicacion+"; delete from publicacion where cod_publicacion="+cod_publicacion+";";
