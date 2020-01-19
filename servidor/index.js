@@ -53,13 +53,13 @@ app.post('/post/recuperar_contra',function(req,res){
 
 app.post('/post/usuarioAU',function(req,res){
     try{
-        if(!req.files){
+        /*if(!req.files){
             res.json({
                 "codigo": 501,
                 "mensaje": "Necesita agregar una fotografia"
             });
-        }
-        registrarUsuarios(req.body.CUI,req.body.NOMBRE,req.body.PASSWORD,req.body.TIPO,req.body.ESTADO,req.files.AVATAR).then((respuesta)=>{
+        }*/
+        registrarUsuarios(req.body.CUI,req.body.NOMBRE,req.body.PASSWORD,req.body.TIPO,req.body.ESTADO).then((respuesta)=>{
                 res.json(respuesta);
         });
     }catch(err){
@@ -155,7 +155,7 @@ async function eliminar_publicacion(cod_publicacion){
     return respuesta;
 }
 async function listado_publicaciones_generales(paginacion){
-    var query="SELECT usu.cui,usu.nombre,publi.cod_publicacion, publi.tipo,publi.nombre,publi.descripcion,publi.posicion_x,publi.posicion_y,publi.fechahora "+
+    var query="SELECT usu.cui,usu.nombre,publi.cod_publicacion,publi.tipo,publi.nombre,publi.descripcion,publi.posicion_x,publi.posicion_y,publi.fechahora,publi.subtipo "+
     "FROM usuario usu "+
     "INNER JOIN asignacion asi "+ 
     "ON usu.cod_usuario = asi.cod_usuario "+
@@ -174,7 +174,7 @@ async function listado_publicaciones_generales(paginacion){
 }
 
 async function listado_publicaciones_usuario(cui,paginacion){
-    var query="SELECT usu.cui,usu.nombre,publi.cod_publicacion, publi.tipo,publi.nombre,publi.descripcion,publi.posicion_x,publi.posicion_y,publi.fechahora "+
+    var query="SELECT usu.cui,usu.nombre,publi.cod_publicacion, publi.tipo,publi.nombre,publi.descripcion,publi.posicion_x,publi.posicion_y,publi.fechahora,publi.subtipo "+
     "FROM usuario usu "+
     "INNER JOIN asignacion asi "+ 
     "ON usu.cod_usuario = asi.cod_usuario "+
@@ -194,7 +194,7 @@ async function listado_publicaciones_usuario(cui,paginacion){
 }
 
 async function buscarUsuario(cui){
-    var query="select cui,password,nombre,imagen from usuario where cui="+cui;
+    var query="select cui,password,nombre from usuario where cui="+cui;
     const respuesta=await conexionbd.client.query(query)
     .then(res=>{
         if(res.rowCount!=1) return {"codigo":201,"mensaje":"Por Favor ingrese un CUI valido"};
@@ -219,10 +219,10 @@ async function eliminarUsuario(cui){
     return respuesta;
 }
 async function registrarUsuarios(cui,nombre,password,tipo,estado,avatar){
-    var query="insert into usuario(cui,nombre,password,tipo,estado,imagen)values("+cui+",'"+nombre+"','"+password+"',"+tipo+","+estado+",'"+cui.toString()+'_'+avatar.name.replace(/ /g, "_")+"')";
+    var query="insert into usuario(cui,nombre,password,tipo,estado,imagen)values("+cui+",'"+nombre+"','"+password+"',"+tipo+","+estado+")";
     const respuesta=await conexionbd.client.query(query)
     .then(res=>{
-        avatar.mv('./uploads/' +cui.toString()+'_'+avatar.name.replace(/ /g, "_"));
+        //avatar.mv('./uploads/' +cui.toString()+'_'+avatar.name.replace(/ /g, "_"));
         return {"codigo":200 ,"mensaje":"Usuario Creado con Exito"};
     }).catch(e=>{
         if (e.code==23505) return {"codigo":201,"mensaje":"Ya existe un usuario registrado el numero de CUI ingresado"};
