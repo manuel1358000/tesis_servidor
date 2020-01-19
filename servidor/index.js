@@ -160,11 +160,16 @@ async function listado_publicaciones_generales(paginacion){
     "INNER JOIN asignacion asi "+ 
     "ON usu.cod_usuario = asi.cod_usuario "+
     "INNER JOIN publicacion publi "+
-    "ON asi.cod_publicacion = publi.cod_publicacion "+
-    "LIMIT 10 OFFSET "+paginacion;
+    "ON asi.cod_publicacion = publi.cod_publicacion ";
+    console.log('paginacion '+paginacion);
+    if(paginacion>=0){
+        console.log('llego aqui');
+        query+="LIMIT 10 OFFSET "+paginacion;
+    }    
     const respuesta=await conexionbd.client.query(query)
     .then(res=>{
         if(res.rowCount==0) return [];
+        console.log('Paginacion '+paginacion+'- query'+res.rowCount);
         return res.rows;
     }).catch(e=>{
         console.log(e);
