@@ -72,6 +72,11 @@ app.get('/get/usuarioAU',function(req,res){
     });
 }); 
 
+app.get('/get/estadisticasAU',function(req,res){
+    estadisticaPublicacion().then((respuesta)=>{
+        res.json(respuesta);
+    });
+});
 
 app.get('/verificar',function(req,res){
     console.log(req.body);
@@ -122,13 +127,43 @@ app.get('/get/publicacionUAU',function(req,res){
     });
 }); 
 app.put('/put/publicacionAU',function(req,res){
-    //actualizacion de un usuario
+    //actualizacion de unq publicacion
+    actualizarPublicacion(req.body.NOMBRE,req.body.DESCRIPCION,req.body.FECHAHORA,req.body.COD_PUBLICACION).then((respuesta)=>{
+        res.json(respuesta);
+    });
 });
 app.delete('/delete/publicacionAU',function(req,res){
     eliminar_publicacion(req.query.COD_PUBLICACION).then((respuesta)=>{
         res.json(respuesta);
     });
 });
+
+async function actualizarPublicacion(nombre,descripcion,fechahora,cod_publicacion){
+    var query="update publicacion set nombre='"+nombre+"',descripcion='"+descripcion+"',fechahora='"+fechahora+"'  where cod_publicacion="+cod_publicacion;
+    const respuesta=await conexionbd.client.query(query)
+    .then(res=>{
+        return {"codigo":200 ,"mensaje":"Los datos se actualizaron de manera correcta"};
+    }).catch(e=>{
+        return {"codigo":501,"mensaje":"Error al momento de actualizar el usuario, intente nuevamente"};            
+     });
+            
+    return respuesta;
+}
+
+async function estadisticaPublicacion(){
+    var query="select (select count(*) as eventos from publicacion pu where estado = 2),"+
+    "(select count(*) as botonpanico from publicacion pu where subtipo = 15), count(*) as alertas "+
+    "from publicacion publi "+
+    "where publi.estado = 1 ";
+    const respuesta=await conexionbd.client.query(query)
+    .then(res=>{
+        if(res.rowCount!=1) return {"codigo":201,"mensaje":"No hay estadisticas"};
+        return {"codigo":200,"mensaje":"Estadisticas eventos y alertas","data":res.rows};
+    }).catch(e=>{
+        return {"codigo":501,"mensaje":"Error al mostrar estadisticas"};
+    });    
+    return respuesta;
+}
 
 async function recuperarContra(cui){
     var query="select password from usuario where cui="+cui;
@@ -155,21 +190,19 @@ async function eliminar_publicacion(cod_publicacion){
     return respuesta;
 }
 async function listado_publicaciones_generales(paginacion){
-    var query="SELECT usu.cui,usu.nombre,publi.cod_publicacion,publi.tipo,publi.nombre,publi.descripcion,publi.posicion_x,publi.posicion_y,publi.fechahora,publi.subtipo "+
+    var query="SELECT usu.cui,usu.nombre,publi.cod_publicacion,publi.tipo,publi.nombre,publi.descripcion,publi.posicion_x,publi.posicion_y,publi.fechahora,publi.subtipo,publi.fechahora "+
     "FROM usuario usu "+
     "INNER JOIN asignacion asi "+ 
     "ON usu.cod_usuario = asi.cod_usuario "+
     "INNER JOIN publicacion publi "+
     "ON asi.cod_publicacion = publi.cod_publicacion ";
-    console.log('paginacion '+paginacion);
+    query+=" ORDER BY publi.fechahora DESC ";
     if(paginacion>=0){
-        console.log('llego aqui');
         query+="LIMIT 10 OFFSET "+paginacion;
     }    
     const respuesta=await conexionbd.client.query(query)
     .then(res=>{
         if(res.rowCount==0) return [];
-        console.log('Paginacion '+paginacion+'- query'+res.rowCount);
         return res.rows;
     }).catch(e=>{
         console.log(e);
@@ -186,6 +219,7 @@ async function listado_publicaciones_usuario(cui,paginacion){
     "INNER JOIN publicacion publi "+
     "ON asi.cod_publicacion = publi.cod_publicacion "+
     "WHERE usu.cui="+cui+" "+
+    " ORDER BY publi.fechahora DESC "+
     "LIMIT 10 OFFSET "+paginacion;
     const respuesta=await conexionbd.client.query(query)
     .then(res=>{
