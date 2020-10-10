@@ -7,11 +7,11 @@ var {Client}=require('pg');
     port:5434
 };*/
 var config={
-    host     : '127.0.0.1',
-	user     : 'manuel',
-	password : 'manuel',
+    host     : '148.72.23.200',
+	user     : 'postgres',
+	password : 'postgres',
     database : 'tesis',
-    port:5432
+    port:5434
 };
 
 const client=new Client(config);
