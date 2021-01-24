@@ -349,6 +349,6 @@ async function generarToken(payload){
 /*app.listen(process.env.NODE_ESB_PORT,'0.0.0.0', () => {
     console.log("Servidor APP AlertaUSAC en la direccion 0.0.0.0");
 });*/
-app.listen(3000,'0.0.0.0', () => {
+app.listen(3002,'0.0.0.0', () => {
     console.log("Servidor APP AlertaUSAC en la direccion 0.0.0.0");
 });

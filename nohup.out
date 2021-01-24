@@ -1,0 +1,51 @@
+Starting tesisservidor_basedatos_1
+Starting trad
+Attaching to tesisservidor_basedatos_1, trad
+[36mbasedatos_1  |[0m 
+[36mbasedatos_1  |[0m PostgreSQL Database directory appears to contain a database; Skipping initialization
+[36mbasedatos_1  |[0m 
+[36mbasedatos_1  |[0m 2021-01-17 15:16:00.788 UTC [1] LOG:  starting PostgreSQL 13.1 (Debian 13.1-1.pgdg100+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 8.3.0-6) 8.3.0, 64-bit
+[36mbasedatos_1  |[0m 2021-01-17 15:16:00.789 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+[36mbasedatos_1  |[0m 2021-01-17 15:16:00.789 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+[36mbasedatos_1  |[0m 2021-01-17 15:16:00.791 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+[36mbasedatos_1  |[0m 2021-01-17 15:16:00.796 UTC [24] LOG:  database system was shut down at 2021-01-17 15:15:43 UTC
+[36mbasedatos_1  |[0m 2021-01-17 15:16:00.806 UTC [1] LOG:  database system is ready to accept connections
+[33mtrad         |[0m 
+[33mtrad         |[0m > servidor@1.0.0 start /app
+[33mtrad         |[0m > node index
+[33mtrad         |[0m 
+[33mtrad         |[0m Servidor APP AlertaUSAC en la direccion 0.0.0.0
+[33mtrad         |[0m { CUI: 201213583, PASSWORD: 'manuel' }
+[33mtrad         |[0m { nombre: 'Manuel Fuentes', tipo: 1 }
+[33mtrad         |[0m { AVATAR:
+[33mtrad         |[0m    { name:
+[33mtrad         |[0m       'b08b03b4-edb9-4961-b664-f4cee23c671b3430150779817672747.jpg',
+[33mtrad         |[0m      data:
+[33mtrad         |[0m       <Buffer ff d8 ff e1 7d b4 45 78 69 66 00 00 49 49 2a 00 08 00 00 00 0c 00 00 01 04 00 01 00 00 00 a0 0f 00 00 01 01 04 00 01 00 00 00 34 07 00 00 0f 01 02 00 ... >,
+[33mtrad         |[0m      size: 1849037,
+[33mtrad         |[0m      encoding: '7bit',
+[33mtrad         |[0m      tempFilePath: '',
+[33mtrad         |[0m      truncated: false,
+[33mtrad         |[0m      mimetype: 'image/jpeg',
+[33mtrad         |[0m      md5: 'd12cec154dfa35d450ec100f07d7946a',
+[33mtrad         |[0m      mv: [Function: mv] } }
+[33mtrad         |[0m { CUI: 201213584, PASSWORD: 'manuel' }
+[33mtrad         |[0m { nombre: 'manuel', tipo: 1 }
+[33mtrad         |[0m (node:16) UnhandledPromiseRejectionWarning: Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client
+[33mtrad         |[0m     at ServerResponse.setHeader (_http_outgoing.js:470:11)
+[33mtrad         |[0m     at ServerResponse.header (/app/node_modules/express/lib/response.js:771:10)
+[33mtrad         |[0m     at ServerResponse.send (/app/node_modules/express/lib/response.js:170:12)
+[33mtrad         |[0m     at ServerResponse.json (/app/node_modules/express/lib/response.js:267:15)
+[33mtrad         |[0m     at listado_publicaciones_usuario.then (/app/index.js:138:6)
+[33mtrad         |[0m     at process._tickCallback (internal/process/next_tick.js:68:7)
+[33mtrad         |[0m (node:16) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). (rejection id: 1)
+[33mtrad         |[0m (node:16) [DEP0018] DeprecationWarning: Unhandled promise rejections are deprecated. In the future, promise rejections that are not handled will terminate the Node.js process with a non-zero exit code.
+[33mtrad         |[0m (node:16) UnhandledPromiseRejectionWarning: Error [ERR_HTTP_HEADERS_SENT]: Cannot set headers after they are sent to the client
+[33mtrad         |[0m     at ServerResponse.setHeader (_http_outgoing.js:470:11)
+[33mtrad         |[0m     at ServerResponse.header (/app/node_modules/express/lib/response.js:771:10)
+[33mtrad         |[0m     at ServerResponse.send (/app/node_modules/express/lib/response.js:170:12)
+[33mtrad         |[0m     at ServerResponse.json (/app/node_modules/express/lib/response.js:267:15)
+[33mtrad         |[0m     at listado_publicaciones_usuario.then (/app/index.js:138:6)
+[33mtrad         |[0m     at process._tickCallback (internal/process/next_tick.js:68:7)
+[33mtrad         |[0m (node:16) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). (rejection id: 2)
+[36mbasedatos_1  |[0m 2021-01-24 07:10:17.327 UTC [19208] LOG:  invalid length of startup packet
